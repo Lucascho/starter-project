@@ -4,11 +4,12 @@ import com.trading.platform.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
@@ -19,10 +20,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """)
     int decreaseStockIfAvailable(@Param("productId") Long productId, @Param("quantity") int quantity);
 
-    @Query("""
-            SELECT p
-              FROM Product p
-             WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-            """)
-    Page<Product> searchByName(@Param("keyword") String keyword, Pageable pageable);
+    Page<Product> findAll(Pageable pageable);
 }

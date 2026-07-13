@@ -2,6 +2,7 @@ package com.trading.platform.controller;
 
 import com.trading.platform.dto.ProductRequest;
 import com.trading.platform.dto.ProductResponse;
+import com.trading.platform.dto.ProductSearchCriteria;
 import com.trading.platform.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -37,8 +38,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public Page<ProductResponse> list(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return productService.listProducts(pageable).map(ProductResponse::from);
+    public Page<ProductResponse> list(@RequestParam(required = false) String keyword,
+                                      @RequestParam(required = false) Double minPrice,
+                                      @RequestParam(required = false) Double maxPrice,
+                                      @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        ProductSearchCriteria criteria = new ProductSearchCriteria(keyword, minPrice, maxPrice);
+        return productService.searchProducts(criteria, pageable).map(ProductResponse::from);
     }
 
     @GetMapping("/{id}")

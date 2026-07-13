@@ -21,3 +21,14 @@ CREATE TABLE IF NOT EXISTS orders (
     total_price DOUBLE PRECISION NOT NULL,
     created_at  TIMESTAMP DEFAULT now()
 );
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS idx_products_name_trgm
+    ON products USING gin (lower(name) gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS idx_products_price
+    ON products (price);
+
+CREATE INDEX IF NOT EXISTS idx_products_created_at
+    ON products (created_at);
