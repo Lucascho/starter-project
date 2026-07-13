@@ -3,6 +3,7 @@ package com.trading.platform.controller;
 import com.trading.platform.dto.ProductRequest;
 import com.trading.platform.entity.Product;
 import com.trading.platform.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,16 +19,16 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product create(@RequestBody ProductRequest request) {
+    public Product create(@Valid @RequestBody ProductRequest request) {
         return productService.createProduct(request);
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody ProductRequest request) {
+    public Product update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         return productService.updateProduct(id, request);
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
         productService.deleteProduct(id);
         return "deleted";

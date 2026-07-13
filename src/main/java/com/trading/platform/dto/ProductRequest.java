@@ -1,4 +1,12 @@
 package com.trading.platform.dto;
 
-public record ProductRequest(String name, double price, Integer stock) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
+public record ProductRequest(
+        @NotBlank String name,
+        @PositiveOrZero double price,
+        @NotNull @PositiveOrZero Integer stock
+) {
 }

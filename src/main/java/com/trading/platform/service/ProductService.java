@@ -5,9 +5,11 @@ import com.trading.platform.entity.Product;
 import com.trading.platform.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ProductService {
@@ -23,17 +25,18 @@ public class ProductService {
 
     public Product createProduct(ProductRequest request) {
         Product p = new Product();
-        p.setName(request.getName());
-        p.setPrice(request.getPrice());
-        p.setStock(request.getStock());
+        p.setName(request.name());
+        p.setPrice(request.price());
+        p.setStock(request.stock());
         return productRepository.save(p);
     }
 
     public Product updateProduct(Long id, ProductRequest request) {
-        Product p = productRepository.findById(id).get();
-        p.setName(request.getName());
-        p.setPrice(request.getPrice());
-        p.setStock(request.getStock());
+        Product p = productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("商品不存在"));
+        p.setName(request.name());
+        p.setPrice(request.price());
+        p.setStock(request.stock());
         return productRepository.save(p);
     }
 
@@ -49,10 +52,12 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    // 已改用參數化查詢，可安全處理使用者輸入
-    @SuppressWarnings("unchecked")
     public List<Product> searchByName(String keyword) {
-        String jpql = "SELECT p FROM Product p WHERE p.name LIKE '%" + keyword + "%'";
-        return entityManager.createQuery(jpql).getResultList();
+        TypedQuery<Product> query = entityManager.createQuery(
+                "SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(:keyword)",
+                Product.class
+        );
+        query.setParameter("keyword", "%" + keyword + "%");
+        return query.getResultList();
     }
 }

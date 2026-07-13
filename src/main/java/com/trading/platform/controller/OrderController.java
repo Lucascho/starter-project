@@ -3,6 +3,7 @@ package com.trading.platform.controller;
 import com.trading.platform.dto.OrderRequest;
 import com.trading.platform.entity.Order;
 import com.trading.platform.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public Order placeOrder(@RequestBody OrderRequest request, Authentication authentication) {
+    public Order placeOrder(@Valid @RequestBody OrderRequest request, Authentication authentication) {
         String username = authentication.getName();
         return orderService.placeOrder(username, request);
     }
