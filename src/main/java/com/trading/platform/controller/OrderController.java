@@ -1,7 +1,7 @@
 package com.trading.platform.controller;
 
 import com.trading.platform.dto.OrderRequest;
-import com.trading.platform.entity.Order;
+import com.trading.platform.dto.OrderResponse;
 import com.trading.platform.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -20,13 +20,15 @@ public class OrderController {
     }
 
     @PostMapping
-    public Order placeOrder(@Valid @RequestBody OrderRequest request, Authentication authentication) {
+    public OrderResponse placeOrder(@Valid @RequestBody OrderRequest request, Authentication authentication) {
         String username = authentication.getName();
-        return orderService.placeOrder(username, request);
+        return OrderResponse.from(orderService.placeOrder(username, request));
     }
 
     @GetMapping
-    public List<Order> myOrders(Authentication authentication) {
-        return orderService.getUserOrders(authentication.getName());
+    public List<OrderResponse> myOrders(Authentication authentication) {
+        return orderService.getUserOrders(authentication.getName()).stream()
+                .map(OrderResponse::from)
+                .toList();
     }
 }

@@ -3,21 +3,16 @@ package com.trading.platform.service;
 import com.trading.platform.dto.ProductRequest;
 import com.trading.platform.entity.Product;
 import com.trading.platform.repository.ProductRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -44,20 +39,16 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public List<Product> listProducts() {
-        return productRepository.findAll();
+    public Page<Product> listProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     public Product getProduct(Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("商品不存在"));
     }
 
-    public List<Product> searchByName(String keyword) {
-        TypedQuery<Product> query = entityManager.createQuery(
-                "SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(:keyword)",
-                Product.class
-        );
-        query.setParameter("keyword", "%" + keyword + "%");
-        return query.getResultList();
+    public Page<Product> searchByName(String keyword, Pageable pageable) {
+        return productRepository.searchByName(keyword, pageable);
     }
 }

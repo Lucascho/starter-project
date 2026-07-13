@@ -1,12 +1,14 @@
 package com.trading.platform.controller;
 
 import com.trading.platform.dto.ProductRequest;
-import com.trading.platform.entity.Product;
+import com.trading.platform.dto.ProductResponse;
 import com.trading.platform.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -19,33 +21,34 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product create(@Valid @RequestBody ProductRequest request) {
-        return productService.createProduct(request);
+    public ProductResponse create(@Valid @RequestBody ProductRequest request) {
+        return ProductResponse.from(productService.createProduct(request));
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        return productService.updateProduct(id, request);
+    public ProductResponse update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
+        return ProductResponse.from(productService.updateProduct(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return "deleted";
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public List<Product> list() {
-        return productService.listProducts();
+    public Page<ProductResponse> list(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return productService.listProducts(pageable).map(ProductResponse::from);
     }
 
     @GetMapping("/{id}")
-    public Product get(@PathVariable Long id) {
-        return productService.getProduct(id);
+    public ProductResponse get(@PathVariable Long id) {
+        return ProductResponse.from(productService.getProduct(id));
     }
 
     @GetMapping("/search")
-    public List<Product> search(@RequestParam String keyword) {
-        return productService.searchByName(keyword);
+    public Page<ProductResponse> search(@RequestParam String keyword,
+                                        @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return productService.searchByName(keyword, pageable).map(ProductResponse::from);
     }
 }
